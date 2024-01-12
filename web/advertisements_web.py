@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Request, Form, Depends, Body
 from fastapi.templating import Jinja2Templates
 from schemas.advertisement import Advertisement, SavedAdvertisement
+from services.currency_exchange import CurrencyConverter
 from storage import storage
-
 
 templates = Jinja2Templates(directory='templates')
 
@@ -13,14 +13,30 @@ router = APIRouter(
 
 
 @router.get('/')
-def index(request: Request):
-    ads = storage.index()
+def get_advertisements(request: Request, search: str = ''):
+    # currency_converter = CurrencyConverter()
+    # uah = currency_converter.convert(1, 'USD', 'UAH')
+    search_params = {}
+
+    if search:
+        search_regex = {'$regex': f".*{search}.*", '$options': 'i'}
+
+        params = [
+            {'model': search_regex},
+            {'manufacturer': search_regex},
+            {'description': search_regex}
+        ]
+        search_params = {'$or': params}
+
+    ads = storage.get_list(search_params)
     context = {
         'request': request,
         'page': 'page 1',
         'title': 'first page',
-        'ads': ads
+        'ads': ads,
+        'search': search
     }
+
     return templates.TemplateResponse('index.html', context=context)
 
 
@@ -33,7 +49,8 @@ def show_create_form(request: Request):
         'model': {'type': 'text', 'placeholder': 'Enter model name', 'label': 'Model'},
         'year': {'type': 'number', 'placeholder': 'Enter year of manufacture', 'label': 'Year'},
         'description': {'type': 'text', 'placeholder': 'Enter description', 'label': 'Description'},
-        'additional_details': {'type': 'textarea', 'placeholder': 'Enter additional details', 'label': 'Additional details'},
+        'additional_details': {'type': 'textarea', 'placeholder': 'Enter additional details',
+                               'label': 'Additional details'},
         # 'images': {'type': 'file', 'placeholder': 'Upload file(s)', 'label': 'Images'}
     }
     context = {
@@ -41,6 +58,22 @@ def show_create_form(request: Request):
         'form_fields': form_fields
     }
     return templates.TemplateResponse('show_create_form.html', context=context)
+
+
+@router.get('/show/{uuid}')
+def show_advertisement(request: Request, uuid: str):
+    advertisement = storage.get_one({'uuid': uuid})
+    context = {
+        'request': request
+    }
+
+    if advertisement is None:
+        return templates.TemplateResponse('error404.html', context=context)
+
+    advertisement_info = SavedAdvertisement(**advertisement)
+    context['ad'] = advertisement_info
+
+    return templates.TemplateResponse('show.html', context=context)
 
 
 @router.post('/create')

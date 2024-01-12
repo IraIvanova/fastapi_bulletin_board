@@ -10,7 +10,11 @@ class BaseStorage(ABC):
         pass
 
     @abstractmethod
-    def index(self):
+    def get_list(self, search_param: dict = None):
+        pass
+
+    @abstractmethod
+    def get_one(self, search_param: dict):
         pass
 
     @abstractmethod
@@ -33,8 +37,14 @@ class MongoStorage(BaseStorage):
         self.collection.insert_one(advertisement)
         return advertisement
 
-    def index(self):
-        return self.collection.find({})
+    def get_list(self, search_param=None):
+        if search_param is None:
+            search_param = {}
+
+        return self.collection.find(search_param)
+
+    def get_one(self, search_param: dict):
+        return self.collection.find_one(search_param)
 
     def update(self):
         raise NotImplemented

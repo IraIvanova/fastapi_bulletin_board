@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}{{ ad.manufacturer}} {{ ad.model}}{% endblock %}
+
+{% block content %}
+<a href="/" class="font-size-14 link-dark">Back to home</a>
+<div class="pt-5">
+    <div>
+        <h1 class="fw-bolder">{{ad.manufacturer}} {{ad.model}} </h1>
+        <p>{{ ad.year }} year</p>
+        <h4>{{ ad.price }}$ ({{ ad.price_in_uah }}uah)</h4>
+        <p class="font-size-14">Seller phone: <span class="text-decoration-underline">{{ ad.phone }}</span></p>
+        <p>{{ ad.description }}</p>
+        <p>{{ ad.additional_details }}</p>
+    </div>
+    <div class="pt-5">
+        <a class="btn btn-dark">Edit</a>
+        <a class="btn btn-outline-dark">Delete</a>
+    </div>
+</div>
+{% endblock %}

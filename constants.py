@@ -6,3 +6,7 @@ class CHARACTERISTICS(str, Enum):
     AIR_BAG = 'air_bag'
     BIOLOGY = 'biology'
     REAR_DRIVE = 'rear_drive'
+
+UAH = 'UAH'
+USD = 'USD'
+EUR = 'EUR'

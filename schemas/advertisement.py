@@ -1,6 +1,6 @@
 from pydantic import BaseModel, Field
 from uuid import uuid4
-
+from services.currency_exchange import CurrencyConverter
 import constants
 
 
@@ -12,13 +12,20 @@ class Advertisement(BaseModel):
     model: str
     year: int = Field(ge=2010)
     description: str = Field(min_length=50, max_length=300)
-    additional_details: list[constants.CHARACTERISTICS] = Field(default=[], max_items=5)
+    # additional_details: list[constants.CHARACTERISTICS] = []
+    # additional_details: list = []
 
 
 class SavedAdvertisement(Advertisement):
     uuid: str = str(uuid4())
     success: bool = True
-    priceInUah: float = None
+    price_in_uah: float = None
+
+    def __init__(self, **data):
+        super().__init__(**data)
+        currency_converter = CurrencyConverter()
+        self.price_in_uah = currency_converter.convert(amount=self.price, from_currency=constants.USD)
+
 
 # можемо розмістити оголошення -
 # маємо вказати номер телефону, ціну в доларах США, список урлів з фотографіями авто

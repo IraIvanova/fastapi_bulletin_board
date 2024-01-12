@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block title %}Not found - 404{% endblock %}
+
+{% block content %}
+<div class="text-center">
+    <h1>PAGE NOT FOUND</h1>
+    <a class="btn btn-dark" href="{{ url_for('index') }}">Back to homepage</a>
+</div>
+{% endblock %}
