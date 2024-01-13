@@ -112,6 +112,10 @@ hr {
   opacity: 0.25;
 }
 
+.mr-10px{
+margin-right: 10px;
+}
+
 .font-size-12 {
     font-size: 12px;
 }

@@ -1,5 +1,6 @@
 import requests
 import constants
+import decimal
 
 
 class CurrencyConverter:
@@ -14,7 +15,8 @@ class CurrencyConverter:
 
         if response.status_code == 200:
             data = response.json()
-            rates = {currency['cc']: currency['rate'] for currency in data}
+            rates = {currency['cc']: decimal.Decimal(currency['rate']).quantize(decimal.Decimal(".00")) for currency in
+                     data}
             rates[self.base_currency] = 1.0
             return rates
         else:
@@ -24,8 +26,14 @@ class CurrencyConverter:
         if from_currency not in self.exchange_rates or to_currency not in self.exchange_rates:
             raise ValueError("Invalid currency code")
 
-        from_rate = self.exchange_rates[from_currency]
-        to_rate = self.exchange_rates[to_currency]
-        converted_amount = amount * from_rate if to_currency == constants.UAH else amount * (to_rate / from_rate)
+        from_rate = float(self.exchange_rates[from_currency])
+        to_rate = float(self.exchange_rates[to_currency])
+        converted_amount = amount * from_rate if to_currency == constants.UAH else amount * (from_rate / to_rate)
 
-        return converted_amount
+        return decimal.Decimal(converted_amount).quantize(decimal.Decimal(".00"))
+
+    def get_main_currencies_exchange_rate(self, currencies: list[str]):
+        return list(map(lambda c: {c: self.exchange_rates[c]}, currencies))
+
+    def get_available_currencies_list(self) -> list:
+        return list(self.exchange_rates.keys())

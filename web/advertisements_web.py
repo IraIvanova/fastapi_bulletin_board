@@ -1,8 +1,10 @@
 from fastapi import APIRouter, Request, Form, Depends, Body
 from fastapi.templating import Jinja2Templates
+import constants as c
 from schemas.advertisement import Advertisement, SavedAdvertisement
 from services.currency_exchange import CurrencyConverter
 from storage import storage
+from datetime import datetime
 
 templates = Jinja2Templates(directory='templates')
 
@@ -14,8 +16,8 @@ router = APIRouter(
 
 @router.get('/')
 def get_advertisements(request: Request, search: str = ''):
-    # currency_converter = CurrencyConverter()
-    # uah = currency_converter.convert(1, 'USD', 'UAH')
+    currency_converter = CurrencyConverter()
+    currencies_exchange_rate = currency_converter.get_main_currencies_exchange_rate([c.EUR, c.USD, c.PLN])
     search_params = {}
 
     if search:
@@ -31,10 +33,11 @@ def get_advertisements(request: Request, search: str = ''):
     ads = storage.get_list(search_params)
     context = {
         'request': request,
-        'page': 'page 1',
-        'title': 'first page',
         'ads': ads,
-        'search': search
+        'search': search,
+        'currencies_exchange_rate': currencies_exchange_rate,
+        'today_date': datetime.today().strftime('%Y-%m-%d'),
+        'available_currencies': currency_converter.get_available_currencies_list()
     }
 
     return templates.TemplateResponse('index.html', context=context)
@@ -82,3 +85,10 @@ def create(advertisement: Advertisement) -> SavedAdvertisement:
     advertisement.manufacturer = advertisement.manufacturer.strip().upper()
     saved_advertisement = storage.create(advertisement.model_dump())
     return saved_advertisement
+
+
+@router.post('/convert-currencies')
+def convert_currencies(data: dict) -> float:
+    currency_converter = CurrencyConverter()
+    a = currency_converter.convert(float(data['amount']), data['from'], data['to'])
+    return a

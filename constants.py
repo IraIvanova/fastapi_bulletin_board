@@ -7,6 +7,8 @@ class CHARACTERISTICS(str, Enum):
     BIOLOGY = 'biology'
     REAR_DRIVE = 'rear_drive'
 
+
 UAH = 'UAH'
 USD = 'USD'
 EUR = 'EUR'
+PLN = 'PLN'
