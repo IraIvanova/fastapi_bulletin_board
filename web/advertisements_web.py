@@ -1,5 +1,6 @@
-from fastapi import APIRouter, Request, Form, Depends, Body
+from fastapi import APIRouter, Request
 from fastapi.templating import Jinja2Templates
+from fastapi.responses import RedirectResponse
 import constants as c
 from schemas.advertisement import Advertisement, SavedAdvertisement
 from services.currency_exchange import CurrencyConverter
@@ -85,6 +86,12 @@ def create(advertisement: Advertisement) -> SavedAdvertisement:
     advertisement.manufacturer = advertisement.manufacturer.strip().upper()
     saved_advertisement = storage.create(advertisement.model_dump())
     return saved_advertisement
+
+
+@router.get('/delete/{uuid}')
+def delete(request: Request, uuid: str):
+    storage.delete({'uuid': uuid})
+    return RedirectResponse('/', status_code=301)
 
 
 @router.post('/convert-currencies')

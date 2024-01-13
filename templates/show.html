@@ -14,7 +14,7 @@
     </div>
     <div class="pt-5">
         <a class="btn btn-dark">Edit</a>
-        <a class="btn btn-outline-dark">Delete</a>
+        <a class="btn btn-outline-dark" href="{{ url_for('delete', uuid=ad.uuid) }}">Delete</a>
     </div>
 </div>
 {% endblock %}

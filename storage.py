@@ -22,7 +22,7 @@ class BaseStorage(ABC):
         pass
 
     @abstractmethod
-    def delete(self):
+    def delete(self, search_param: dict):
         pass
 
 
@@ -49,8 +49,8 @@ class MongoStorage(BaseStorage):
     def update(self):
         raise NotImplemented
 
-    def delete(self):
-        raise NotImplemented
+    def delete(self, search_param: dict):
+        return self.collection.delete_one(search_param)
 
 
 storage = MongoStorage()
