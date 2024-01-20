@@ -56,9 +56,9 @@
         const jsonObject = Object.fromEntries(formData);
 
         jsonObject.additional_details = jsonObject.additional_details.split(',')
-        jsonObject.images = jsonObject.images.split(',')
+        jsonObject.images = jsonObject.images === "" ? [] :jsonObject.images.split(',')
         let errorContainer = document.getElementById('errors');
-
+console.log(jsonObject)
         axios.post(form.action, jsonObject)
         .then((resp) => {
             if (resp.data.url) {

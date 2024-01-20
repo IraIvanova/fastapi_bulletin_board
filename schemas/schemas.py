@@ -12,7 +12,7 @@ class Advertisement(BaseModel):
     year: int = Field(ge=2010, examples=['2010'])
     description: str = Field(min_length=50, max_length=300)
     additional_details: list[constants.CHARACTERISTICS] = Field(default=[], max_items=5)
-    images: list[str] = Field(default=[], max_items=5)
+    images: list[str] = Field(max_items=10)
 
 
 class SavedAdvertisement(Advertisement):
