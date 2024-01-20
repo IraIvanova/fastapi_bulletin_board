@@ -10,25 +10,36 @@
 </style>
 {% endblock %}
 {% block content %}
-<h1>Create new ad</h1>
+{% if type == "new" %}
+<h1>Create new advertisement</h1>
+{% else %}
+<h1>Edit advertisement</h1>
+{% endif %}
 <a href="/" class="font-size-14 link-dark">Back to home</a>
 <hr>
 <div class="mt-5">
-<form action="/create" method="POST" enctype="multipart/form-data" id="create_ad_form">
-    {% for key, value in form_fields.items() %}
-        <div class="mb-1">
-            {{ forms.input(name=key, type=value.type, placeholder=value.placeholder, label=value.label) }}
-        </div>
-    {% endfor %}
 
-  <div class="form-group row">
-    <div class="col-sm-10">
-      <button type="submit" class="btn btn-primary">Save</button>
-    </div>
-  </div>
+    {% if type == "new" %}
+        <form action="{{ url_for('create') }}" method="POST" enctype="multipart/form-data" id="create_ad_form">
+    {% else %}
+        <form action="{{ url_for('update', uuid=ad.uuid) }}" method="POST" enctype="multipart/form-data" id="create_ad_form">
+    {% endif %}
+            {% for key, value in form_fields.items() %}
+            <div class="mb-1key, value">
+                {{ forms.input(name=key, type=value.type, placeholder=value.placeholder, label=value.label,
+                value=value.value, options=value.options) }}
+            </div>
+            {% endfor %}
+<div id="errors" class="mt-2 alert alert-danger d-none"></div>
+            <div class="form-group row">
+                <div class="col-sm-10">
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </div>
+            </div>
 
-</form>
+        </form>
 </div>
+
 {% endblock %}
 
 {% block javascript %}
@@ -36,10 +47,37 @@
     let form = document.getElementById('create_ad_form');
     form.addEventListener('submit', (e) => {
         e.preventDefault();
+        const selectedCheckboxes = Array.from(document.querySelectorAll("input[name=additional_details]:checked")).map((elem) => elem.value);
+        const images = document.getElementById("images").value.split(',').map((elem) => elem.trim())
+
         const formData = new FormData(form);
+        formData.append('additional_details', selectedCheckboxes);
+        formData.append('images', images);
         const jsonObject = Object.fromEntries(formData);
 
-        axios.post('/create', jsonObject);
+        jsonObject.additional_details = jsonObject.additional_details.split(',')
+        jsonObject.images = jsonObject.images.split(',')
+        let errorContainer = document.getElementById('errors');
+
+        axios.post(form.action, jsonObject)
+        .then((resp) => {
+            if (resp.data.url) {
+                document.getElementById('success_result').innerHTML = resp.data.msg
+                $('#baseModal').modal('show');
+
+                setTimeout(function () {
+                   location.href = resp.data.url
+                }, 5000);
+            }
+        })
+        .catch(function (error) {
+            errorContainer.innerHTML = '';
+                for ( value of error.response.data.detail) {
+                console.log(value.msg)
+                    errorContainer.innerHTML += `<p>Field "${value.loc[1]}": ${value.msg}</p>`
+                }
+           errorContainer.classList.remove('d-none');
+        });
     })
 </script>
 {% endblock %}

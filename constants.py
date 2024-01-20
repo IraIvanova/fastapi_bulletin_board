@@ -12,3 +12,6 @@ UAH = 'UAH'
 USD = 'USD'
 EUR = 'EUR'
 PLN = 'PLN'
+
+CREATE_FORM = 'new'
+EDIT_FORM = 'edit'

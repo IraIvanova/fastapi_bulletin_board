@@ -1,9 +1,11 @@
 from fastapi import FastAPI
 from web import advertisements_web
+from api import advertisements_api
 from fastapi.staticfiles import StaticFiles
 
 app = FastAPI()
 app.include_router(advertisements_web.router)
+app.include_router(advertisements_api.router)
 app.mount("/public", StaticFiles(directory="public"), name="public")
 
 if __name__ == '__main__':
