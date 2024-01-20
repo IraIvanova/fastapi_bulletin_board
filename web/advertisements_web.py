@@ -61,7 +61,8 @@ def show_create_or_update_form(request: Request, uuid: str):
         'additional_details': {'type': 'checkbox', 'placeholder': 'Enter additional details',
                                'label': 'Additional details', 'value': ad['additional_details'] if ad else '',
                                'options': [option.value for option in constants.CHARACTERISTICS]},
-        'images': {'type': 'text', 'placeholder': 'Insert images URLs separated by commas', 'label': 'Images'}
+        'images': {'type': 'text', 'placeholder': 'Insert images URLs separated by commas', 'label': 'Images',
+                   'value': ', '.join(ad['images']) if ad else ''}
     }
 
     context['form_fields'] = form_fields

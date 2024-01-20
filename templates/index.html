@@ -13,7 +13,7 @@
                 {% for ad in ads %}
                 <div class="col mb-5">
                     <div class="card h-100">
-                        {% if ad.images | length > 0 %}
+                        {% if ad.images and ad.images | length > 0 %}
                             <img class="card-img-top" src="{{ ad.images[0] }}" alt="..."/>
                         {% else %}
                             <img class="card-img-top" src="https://dummyimage.com/450x300/dee2e6/6c757d.jpg" alt="..."/>
