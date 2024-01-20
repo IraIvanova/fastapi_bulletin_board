@@ -1,0 +1,153 @@
+{% extends "base.html" %}
+
+{% block title %}Home page{% endblock %}
+
+{% block content %}
+{% if search %}
+<h2 class="mb-3">Search results for: {{ search }}</h2>
+{% endif %}
+<div>
+    <div class="row pt-5">
+        <div class="col-9">
+            <div class="row gx-4 gx-lg-5  row-cols-1 row-cols-md-2 row-cols-xl-3 justify-content-center">
+                {% for ad in ads %}
+                <div class="col mb-5">
+                    <div class="card h-100">
+                        {% if ad.images | length > 0 %}
+                            <img class="card-img-top" src="{{ ad.images[0] }}" alt="..."/>
+                        {% else %}
+                            <img class="card-img-top" src="https://dummyimage.com/450x300/dee2e6/6c757d.jpg" alt="..."/>
+                        {% endif %}
+
+                        <div class="card-body p-4">
+                            <div class="text-center">
+                                <div class="d-flex justify-content-center">
+                                    <h5 class="fw-bolder">{{ad.manufacturer}} {{ad.model}} </h5>
+                                    <p>({{ ad.year }})</p>
+                                </div>
+                                {{ ad.price }}$
+                                <hr>
+                                <div class="font-size-14">
+                                    <p class="font-size-14">Seller phone: <span
+                                            class="text-decoration-underline">{{ ad.phone }}</span></p>
+                                    <p>{{ ad.description| truncate(60) }}</p>
+                                    {% if ad.additional_details|length > 0 %}
+                                    {% for detail in ad.additional_details %}
+                                    <span class="badge bg-secondary p-2">{{ detail }}</span>
+                                    {% endfor %}
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-footer p-4 pt-0 border-top-0 bg-transparent">
+                            <div class="text-center"><a class="btn btn-outline-dark mt-auto"
+                                                        href="{{ url_for('show_advertisement', uuid=ad.uuid) }}">View
+                                details</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        <div class="col-3">
+            <div class="card p-2">
+                <b>UAH exchange rates*</b>
+                <p class="font-size-14">on {{ today_date }}</p>
+                <table class="table">
+                    <thead>
+                    <tr>
+                        {% for currency in currencies_exchange_rate %}
+                        {% for currency_code,value in currency.items() %}
+                        <th scope="col">{{ currency_code }}</th>
+                        {% endfor %}
+                        {% endfor %}
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        {% for currency in currencies_exchange_rate %}
+                        {% for currency_code,value in currency.items() %}
+                        <td scope="col">{{ value }}</td>
+                        {% endfor %}
+                        {% endfor %}
+
+                    </tr>
+                    </tbody>
+                </table>
+
+            </div>
+            <div class="card p-2 mt-2">
+                <b>Currency converter*</b>
+                <p class="font-size-14">on {{ today_date }}</p>
+                <form id="exchange_form">
+                    <label class="w-100">
+                        <span class="font-size-12">Amount</span>
+                        <input type="number" class="form-control mb-2" id="amount" name="amount" value="1">
+                    </label>
+                    <div class="d-flex">
+                        <label class="w-50 mr-10px">
+                            <span class="font-size-12">From</span>
+                            <select class="form-control mb-2 select">
+                                <option value="0" disabled selected>From</option>
+                                {% for currency in available_currencies %}
+                                <option value="{{ currency }}">{{ currency }}</option>
+                                {% endfor %}
+                            </select>
+                        </label>
+
+                        <label class="w-50">
+                            <span class="font-size-12">To</span>
+                            <select class="form-control select">
+                                <option value="0" disabled selected>To</option>
+                                {% for currency in available_currencies %}
+                                <option value="{{ currency }}">{{ currency }}</option>
+                                {% endfor %}
+                            </select>
+                        </label>
+                    </div>
+                </form>
+                <div id="exchange_result" class="text-center"></div>
+            </div>
+            <p class="font-size-12">* NBU Official Exchange Rates</p>
+        </div>
+    </div>
+</div>
+
+<a class="btn btn-dark" href="{{ url_for('show_create_or_update_form', uuid='new') }}">Create new advertisement</a>
+{% endblock %}
+
+{% block javascript %}
+<script>
+    amount_input = document.getElementById('amount');
+    let selects = document.getElementsByClassName('select');
+
+    for(const select of selects) {
+        select.addEventListener('change', (e) => {
+            send_request(selects);
+        })
+    }
+
+     amount_input.addEventListener('input', (e) => {
+        send_request(selects);
+     })
+
+     let send_request = (selects) => {
+        for (const s of selects) {
+                if ( s.value == 0 ) {
+                    return null;
+                }
+            }
+
+            axios.post('{{url_for('convert_currencies')}}', {
+                amount: amount_input.value,
+                from: selects[0].value,
+                to: selects[1].value
+            })
+            .then((resp) => {
+                document.getElementById('exchange_result').innerHTML = `<h3>${resp.data}</h3>`
+            })
+     }
+
+</script>
+{% endblock %}

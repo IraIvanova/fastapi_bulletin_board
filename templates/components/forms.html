@@ -1,0 +1,23 @@
+{% macro input(name, value='', type='text', placeholder='', label='', options=[]) -%}
+  <div class="form-group row">
+    <label for="{{ name }}" class="col-sm-2 col-form-label">{{ label }}</label>
+    <div class="col-sm-10">
+      {% if type == 'checkbox' %}
+        <div class="d-flex pt-2">
+        {% for option in options %}
+          <div class="mr-10px">
+            <label>
+            <input type="checkbox" name="{{ name }}" value="{{ option }}"
+              {% if option in value %} checked {% endif %}
+            >
+                <span>{{ option }}</span>
+              </label>
+          </div>
+        {% endfor %}
+            </div>
+      {% else %}
+         <input id="{{ name }}" type="{{ type }}" name="{{ name }}" class="form-control" value="{{ value }}" placeholder="{{ placeholder }}" >
+      {% endif %}
+    </div>
+  </div>
+{%- endmacro %}
